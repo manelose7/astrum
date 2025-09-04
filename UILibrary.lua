@@ -212,4 +212,76 @@ function UILibrary.createColorPicker(parent: Instance, text: string): Component
     return colorPicker
 end
 
+-- Создание главного окна с глобальным управлением
+function UILibrary.createMainWindow(parent: Instance, title: string): Component
+    local window = UILibrary.new(parent)
+    window.frame.Size = UDim2.new(0, 300, 0, 500)
+    window.frame.Position = UDim2.new(0.5, -150, 0.5, -250)
+    window.frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    window.frame.Visible = true  -- Изначально открыто
+    
+    -- Заголовок окна
+    local titleFrame = Instance.new("Frame", window.frame)
+    titleFrame.Size = UDim2.new(1, 0, 0, 40)
+    titleFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    
+    local titleText = Instance.new("TextButton", titleFrame)
+    titleText.Size = UDim2.new(1, 0, 1, 0)
+    titleText.Text = title
+    titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleText.BackgroundTransparency = 1
+    
+    -- Контейнер для контента
+    local contentFrame = Instance.new("Frame", window.frame)
+    contentFrame.Size = UDim2.new(1, 0, 1, -40)
+    contentFrame.Position = UDim2.new(0, 0, 0, 40)
+    contentFrame.BackgroundTransparency = 1
+    
+    -- Добавляем возможность перетаскивания
+    local isDragging = false
+    local dragStart
+    local startPos
+    
+    titleText.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            isDragging = true
+            dragStart = input.Position
+            startPos = window.frame.Position
+        end
+    end)
+    
+    titleText.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            isDragging = false
+        end
+    end)
+    
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if isDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            window.frame.Position = UDim2.new(
+                startPos.X.Scale, 
+                startPos.X.Offset + delta.X, 
+                startPos.Y.Scale, 
+                startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+    
+    -- Глобальное управление открытием/закрытием
+    game:GetService("UserInputService").InputBegan:Connect(function(input)
+        if input.KeyCode == Enum.KeyCode.Delete then
+            window.frame.Visible = not window.frame.Visible
+        end
+    end)
+    
+    -- Расширяем объект дополнительными методами
+    function window:AddComponent(component)
+        component.frame.Parent = contentFrame
+        return component
+    end
+    
+    return window
+end
+
 return UILibrary
