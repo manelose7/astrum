@@ -412,21 +412,42 @@ end
 -- Создание главного окна с глобальным управлением
 function UILibrary.createMainWindow(parent: Instance, title: string): Component
     local window = UILibrary.new(parent)
-    window.frame.Size = UDim2.new(0, 430, 0, 500)
-    window.frame.Position = UDim2.new(0.5, -215, 0.5, -250)
-    window.frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    window.frame.Visible = true  -- Изначально открыто
+    
+    -- Создаем ScreenGui, если его нет
+    local screenGui = parent:FindFirstOfClass("ScreenGui")
+    if not screenGui then
+        screenGui = Instance.new("ScreenGui", parent)
+        screenGui.Name = "UILibraryMainGui"
+        screenGui.ResetOnSpawn = false
+        screenGui.Enabled = true
+        screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+    end
+    
+    window.frame.Parent = screenGui
+    window.frame.Size = UDim2.new(0, 400, 0, 500)  -- Фиксированный размер
+    window.frame.Position = UDim2.new(0.5, -200, 0.5, -250)  -- Центрирование
+    window.frame.BackgroundColor3 = COLORS.BACKGROUND
+    window.frame.BorderSizePixel = 0
+    window.frame.Visible = true
+    
+    -- Добавляем мягкую тень
+    local shadow = CreateShadow(window.frame)
+    shadow.Size = UDim2.new(1, 20, 1, 20)
+    shadow.Position = UDim2.new(0, -10, 0, -10)
     
     -- Заголовок окна
     local titleFrame = Instance.new("Frame", window.frame)
     titleFrame.Size = UDim2.new(1, 0, 0, 40)
-    titleFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    titleFrame.BackgroundColor3 = COLORS.BACKGROUND_LIGHT
+    titleFrame.BorderSizePixel = 0
     
     local titleText = Instance.new("TextButton", titleFrame)
     titleText.Size = UDim2.new(1, 0, 1, 0)
     titleText.Text = title
-    titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleText.TextColor3 = COLORS.TEXT_PRIMARY
     titleText.BackgroundTransparency = 1
+    titleText.Font = Enum.Font.GothamSemibold
+    titleText.TextSize = 16
     
     -- Контейнер для контента
     local contentFrame = Instance.new("Frame", window.frame)
