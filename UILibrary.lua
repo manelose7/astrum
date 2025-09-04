@@ -70,6 +70,10 @@ function UILibrary.createToggle(parent: Instance, text: string): Component
     toggleHandle.BackgroundColor3 = COLORS.TEXT_PRIMARY
     toggleHandle.BorderSizePixel = 0
     
+    toggle.TextButton = textButton
+    toggle.ToggleIndicator = toggleIndicator
+    toggle.ToggleHandle = toggleHandle
+    
     textButton.MouseButton1Click:Connect(function()
         toggle.enabled = not toggle.enabled
         
@@ -121,6 +125,11 @@ function UILibrary.createSlider(parent: Instance, text: string, minValue: number
     sliderHandle.Position = UDim2.new(0, 0, 0.5, -10)
     sliderHandle.BackgroundColor3 = COLORS.PRIMARY
     sliderHandle.BorderSizePixel = 0
+    
+    slider.TextButton = textButton
+    slider.ValueText = valueText
+    slider.SliderBar = sliderBar
+    slider.SliderHandle = sliderHandle
     
     local currentValue = minValue
     
