@@ -414,7 +414,7 @@ function UILibrary.createMainWindow(parent: Instance, title: string): Component
     local window = UILibrary.new(parent)
     
     -- Создаем ScreenGui, если его нет
-    local screenGui = parent:FindFirstOfClass("ScreenGui")
+    local screenGui = parent:FindFirstChildOfClass("ScreenGui")
     if not screenGui then
         screenGui = Instance.new("ScreenGui", parent)
         screenGui.Name = "UILibraryMainGui"
