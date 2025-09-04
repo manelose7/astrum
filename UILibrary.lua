@@ -1,75 +1,85 @@
 local UILibrary = {}
 UILibrary.__index = UILibrary
 
--- Типы для строгой типизации
-type Component = {
-    frame: Frame,
-    value: any,
-    enabled: boolean
+-- Цветовая палитра
+local COLORS = {
+    BACKGROUND = Color3.fromRGB(30, 30, 35),
+    BACKGROUND_LIGHT = Color3.fromRGB(40, 40, 45),
+    PRIMARY = Color3.fromRGB(52, 152, 219),     -- Яркий синий
+    PRIMARY_HOVER = Color3.fromRGB(73, 173, 239),
+    TEXT_PRIMARY = Color3.fromRGB(255, 255, 255),
+    TEXT_SECONDARY = Color3.fromRGB(200, 200, 210),
+    ACCENT_GREEN = Color3.fromRGB(46, 204, 113),
+    ACCENT_GREEN_HOVER = Color3.fromRGB(67, 224, 133),
+    ACCENT_GRAY = Color3.fromRGB(100, 100, 110)
 }
+
+-- Функция для создания тени
+local function CreateShadow(parent)
+    local shadow = Instance.new("Frame", parent)
+    shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    shadow.BackgroundTransparency = 0.7
+    shadow.Size = UDim2.new(1, 0, 1, 0)
+    shadow.ZIndex = parent.ZIndex - 1
+    return shadow
+end
 
 -- Базовый конструктор компонента
 function UILibrary.new(parent: Instance): Component
     local self = setmetatable({}, UILibrary)
     self.frame = Instance.new("Frame", parent)
-    self.frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    self.frame.BackgroundColor3 = COLORS.BACKGROUND
     self.frame.BorderSizePixel = 0
+    self.frame.Size = UDim2.new(1, 0, 0, 50)
+    
+    -- Добавляем мягкую тень
+    local shadow = CreateShadow(self.frame)
+    shadow.Size = UDim2.new(1, 10, 1, 10)
+    shadow.Position = UDim2.new(0, -5, 0, -5)
+    
     self.value = nil
     self.enabled = false
     return self
 end
 
--- Создание глобального обработчика клавиш
-function UILibrary.createGlobalKeybinds(keybinds)
-    local UserInputService = game:GetService("UserInputService")
-    
-    local function SafeExecute(action)
-        local success, result = pcall(action)
-        if not success then
-            warn("❌ Ошибка при выполнении действия: " .. tostring(result))
-        end
-    end
-    
-    local connection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
-        if not gameProcessed then
-            local bindAction = keybinds[input.KeyCode]
-            if bindAction then
-                SafeExecute(bindAction)
-            end
-        end
-    end)
-    
-    return {
-        connection = connection,
-        disconnect = function()
-            if connection.Connected then
-                connection:Disconnect()
-            end
-        end
-    }
-end
-
 -- Создание Toggle компонента
 function UILibrary.createToggle(parent: Instance, text: string): Component
     local toggle = UILibrary.new(parent)
-    toggle.frame.Size = UDim2.new(0, 100, 0, 30)
-    toggle.frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    toggle.frame.Size = UDim2.new(1, 0, 0, 50)
+    toggle.frame.BackgroundColor3 = COLORS.BACKGROUND_LIGHT
     
-    local textLabel = Instance.new("TextButton", toggle.frame)
-    textLabel.Text = text
-    textLabel.Size = UDim2.new(1, 0, 1, 0)
-    textLabel.BackgroundTransparency = 1
+    local textButton = Instance.new("TextButton", toggle.frame)
+    textButton.Text = text
+    textButton.Size = UDim2.new(1, -70, 1, 0)
+    textButton.Position = UDim2.new(0, 10, 0, 0)
+    textButton.BackgroundTransparency = 1
+    textButton.Font = Enum.Font.GothamSemibold
+    textButton.TextSize = 14
+    textButton.TextColor3 = COLORS.TEXT_PRIMARY
+    textButton.TextXAlignment = Enum.TextXAlignment.Left
     
-    local indicator = Instance.new("Frame", toggle.frame)
-    indicator.Size = UDim2.new(0, 20, 1, 0)
-    indicator.Position = UDim2.new(1, -25, 0, 0)
-    indicator.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    local toggleIndicator = Instance.new("Frame", toggle.frame)
+    toggleIndicator.Size = UDim2.new(0, 40, 0, 25)
+    toggleIndicator.Position = UDim2.new(1, -55, 0.5, -12)
+    toggleIndicator.BackgroundColor3 = COLORS.ACCENT_GRAY
+    toggleIndicator.BorderSizePixel = 0
     
-    textLabel.MouseButton1Click:Connect(function()
+    local toggleHandle = Instance.new("Frame", toggleIndicator)
+    toggleHandle.Size = UDim2.new(0, 20, 0, 20)
+    toggleHandle.Position = UDim2.new(0, 2, 0.5, -10)
+    toggleHandle.BackgroundColor3 = COLORS.TEXT_PRIMARY
+    toggleHandle.BorderSizePixel = 0
+    
+    textButton.MouseButton1Click:Connect(function()
         toggle.enabled = not toggle.enabled
-        indicator.BackgroundColor3 = toggle.enabled 
-            and Color3.fromRGB(0, 255, 0) 
-            or Color3.fromRGB(100, 100, 100)
+        
+        if toggle.enabled then
+            toggleIndicator.BackgroundColor3 = COLORS.ACCENT_GREEN
+            toggleHandle.Position = UDim2.new(1, -22, 0.5, -10)
+        else
+            toggleIndicator.BackgroundColor3 = COLORS.ACCENT_GRAY
+            toggleHandle.Position = UDim2.new(0, 2, 0.5, -10)
+        end
     end)
     
     return toggle
@@ -78,32 +88,73 @@ end
 -- Создание Slider компонента
 function UILibrary.createSlider(parent: Instance, text: string, minValue: number, maxValue: number): Component
     local slider = UILibrary.new(parent)
-    slider.frame.Size = UDim2.new(0, 200, 0, 30)
-    slider.frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    slider.frame.Size = UDim2.new(1, 0, 0, 70)
+    slider.frame.BackgroundColor3 = COLORS.BACKGROUND_LIGHT
     
-    local textLabel = Instance.new("TextButton", slider.frame)
-    textLabelText = text
-    textLabelSize = UDim2.new(0.5, 0, 1, 0)
-    textLabelBackgroundTransparency = 1
+    local textButton = Instance.new("TextButton", slider.frame)
+    textButton.Text = text
+    textButton.Size = UDim2.new(1, -120, 0, 30)
+    textButton.Position = UDim2.new(0, 10, 0, 5)
+    textButton.BackgroundTransparency = 1
+    textButton.Font = Enum.Font.GothamSemibold
+    textButton.TextSize = 14
+    textButton.TextColor3 = COLORS.TEXT_PRIMARY
+    textButton.TextXAlignment = Enum.TextXAlignment.Left
+    
+    local valueText = Instance.new("TextButton", slider.frame)
+    valueText.Text = tostring(minValue)
+    valueText.Size = UDim2.new(0, 60, 0, 30)
+    valueText.Position = UDim2.new(1, -70, 0, 5)
+    valueText.BackgroundTransparency = 1
+    valueText.Font = Enum.Font.GothamMedium
+    valueText.TextSize = 12
+    valueText.TextColor3 = COLORS.TEXT_SECONDARY
     
     local sliderBar = Instance.new("Frame", slider.frame)
-    sliderBar.Size = UDim2.new(0.5, 0, 0.3, 0)
-    sliderBar.Position = UDim2.new(0.5, 0, 0.5, 0)
-    sliderBar.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    sliderBar.Size = UDim2.new(1, -80, 0, 10)
+    sliderBar.Position = UDim2.new(0, 10, 1, -25)
+    sliderBar.BackgroundColor3 = COLORS.ACCENT_GRAY
+    sliderBar.BorderSizePixel = 0
     
-    local handle = Instance.new("Frame", sliderBar)
-    handle.Size = UDim2.new(0, 20, 1, 0)
-    handle.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+    local sliderHandle = Instance.new("Frame", sliderBar)
+    sliderHandle.Size = UDim2.new(0, 20, 0, 20)
+    sliderHandle.Position = UDim2.new(0, 0, 0.5, -10)
+    sliderHandle.BackgroundColor3 = COLORS.PRIMARY
+    sliderHandle.BorderSizePixel = 0
     
-    -- Логика перемещения слайдера
-    handle.InputBegan:Connect(function(input)
+    local currentValue = minValue
+    
+    local function updateSlider(value)
+        currentValue = math.max(minValue, math.min(maxValue, value))
+        local percentage = (currentValue - minValue) / (maxValue - minValue)
+        sliderHandle.Position = UDim2.new(percentage, -10, 0.5, -10)
+        valueText.Text = string.format("%.2f", currentValue)
+        slider.value = currentValue
+    end
+    
+    local UserInputService = game:GetService("UserInputService")
+    local isDragging = false
+    
+    sliderBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            local connection
-            connection = input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    connection:Disconnect()
-                end
-            end)
+            isDragging = true
+            local relativePosition = input.Position.X - sliderBar.AbsolutePosition.X
+            local percentage = relativePosition / sliderBar.AbsoluteSize.X
+            updateSlider(minValue + percentage * (maxValue - minValue))
+        end
+    end)
+    
+    sliderBar.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            isDragging = false
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if isDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local relativePosition = input.Position.X - sliderBar.AbsolutePosition.X
+            local percentage = relativePosition / sliderBar.AbsoluteSize.X
+            updateSlider(minValue + percentage * (maxValue - minValue))
         end
     end)
     
@@ -113,23 +164,35 @@ end
 -- Создание кнопки с кастомизацией
 function UILibrary.createButton(parent: Instance, text: string, callback: () -> ()): Component
     local button = UILibrary.new(parent)
-    button.frame.Size = UDim2.new(0, 120, 0, 30)
+    button.frame.Size = UDim2.new(1, 0, 0, 50)
     
     local textButton = Instance.new("TextButton", button.frame)
-    textButton.Size = UDim2.new(1, 0, 1, 0)
+    textButton.Size = UDim2.new(1, -20, 1, -10)
+    textButton.Position = UDim2.new(0, 10, 0, 5)
     textButton.Text = text
-    textButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    textButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    textButton.TextColor3 = COLORS.TEXT_PRIMARY
+    textButton.BackgroundColor3 = COLORS.PRIMARY
+    textButton.Font = Enum.Font.GothamSemibold
+    textButton.TextSize = 14
+    textButton.BorderSizePixel = 0
     
     textButton.MouseButton1Click:Connect(callback or function() end)
     
-    -- Эффект наведения и нажатия
+    -- Эффекты наведения и нажатия
     textButton.MouseEnter:Connect(function()
-        textButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+        textButton.BackgroundColor3 = COLORS.PRIMARY_HOVER
     end)
     
     textButton.MouseLeave:Connect(function()
-        textButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        textButton.BackgroundColor3 = COLORS.PRIMARY
+    end)
+    
+    textButton.MouseButton1Down:Connect(function()
+        textButton.BackgroundTransparency = 0.5
+    end)
+    
+    textButton.MouseButton1Up:Connect(function()
+        textButton.BackgroundTransparency = 0
     end)
     
     return button
@@ -138,39 +201,55 @@ end
 -- Создание выпадающего списка
 function UILibrary.createDropdown(parent: Instance, text: string, options: {string}): Component
     local dropdown = UILibrary.new(parent)
-    dropdown.frame.Size = UDim2.new(0, 150, 0, 30)
+    dropdown.frame.Size = UDim2.new(1, 0, 0, 50)
     
     local mainButton = Instance.new("TextButton", dropdown.frame)
-    mainButton.Size = UDim2.new(1, 0, 1, 0)
+    mainButton.Size = UDim2.new(1, -20, 1, -10)
+    mainButton.Position = UDim2.new(0, 10, 0, 5)
     mainButton.Text = text
-    mainButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    mainButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    mainButton.TextColor3 = COLORS.TEXT_PRIMARY
+    mainButton.BackgroundColor3 = COLORS.BACKGROUND_LIGHT
+    mainButton.Font = Enum.Font.GothamSemibold
+    mainButton.TextSize = 14
+    mainButton.BorderSizePixel = 0
     
     local dropdownList = Instance.new("Frame", dropdown.frame)
-    dropdownList.Size = UDim2.new(1, 0, 0, 0)
-    dropdownList.Position = UDim2.new(0, 0, 1, 0)
+    dropdownList.Size = UDim2.new(1, -20, 0, 0)
+    dropdownList.Position = UDim2.new(0, 10, 1, 5)
+    dropdownList.BackgroundColor3 = COLORS.BACKGROUND_LIGHT
     dropdownList.Visible = false
-    dropdownList.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    dropdownList.BorderSizePixel = 0
     
     -- Создание списка опций
     for i, optionText in ipairs(options) do
         local option = Instance.new("TextButton", dropdownList)
-        option.Size = UDim2.new(1, 0, 0, 30)
-        option.Position = UDim2.new(0, 0, 0, (i-1) * 30)
+        option.Size = UDim2.new(1, 0, 0, 40)
+        option.Position = UDim2.new(0, 0, 0, (i-1) * 40)
         option.Text = optionText
-        option.TextColor3 = Color3.fromRGB(200, 200, 200)
-        option.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        option.TextColor3 = COLORS.TEXT_SECONDARY
+        option.BackgroundColor3 = COLORS.BACKGROUND
+        option.Font = Enum.Font.GothamMedium
+        option.TextSize = 12
+        option.BorderSizePixel = 0
         
         option.MouseButton1Click:Connect(function()
             mainButton.Text = optionText
             dropdownList.Visible = false
             dropdown.value = optionText
         end)
+        
+        option.MouseEnter:Connect(function()
+            option.BackgroundColor3 = COLORS.BACKGROUND_LIGHT
+        end)
+        
+        option.MouseLeave:Connect(function()
+            option.BackgroundColor3 = COLORS.BACKGROUND
+        end)
     end
     
     mainButton.MouseButton1Click:Connect(function()
         dropdownList.Visible = not dropdownList.Visible
-        dropdownList.Size = UDim2.new(1, 0, 0, #options * 30)
+        dropdownList.Size = UDim2.new(1, -20, 0, #options * 40)
     end)
     
     return dropdown
