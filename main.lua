@@ -1562,8 +1562,6 @@ function RayfieldLibrary:CreateWindow(Settings)
 		if getgenv and not getgenv().rayfieldCached then
 			Rayfield.Enabled = true
 			Rayfield.Loading.Visible = true
-
-			task.wait(1.4)
 			Rayfield.Loading.Visible = false
 		end
 	end
@@ -1573,7 +1571,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 	if not correctBuild and not Settings.DisableBuildWarnings then
 		task.delay(3, 
 			function() 
-				RayfieldLibrary:Notify({Title = 'Build Mismatch', Content = 'Rayfield may encounter issues as you are running an incompatible interface version ('.. ((Rayfield:FindFirstChild('Build') and Rayfield.Build.Value) or 'No Build') ..').\n\nThis version of Rayfield is intended for interface build '..InterfaceBuild..'.\n\nTry rejoining and then run the script twice.', Image = 4335487866, Duration = 15})		
+				RayfieldLibrary:Notify({Title = 'Несоответствие сборки', Content = 'Rayfield может столкнуться с проблемами из-за несовместимой версии интерфейса ('.. ((Rayfield:FindFirstChild('Bild') and Rayfield.Bild.Value) or 'Нет сборки') ..').\n\nЭта версия Rayfield предназначена для сборки '..InterfaceBuild..' ', Image = 4335487866, Duration = 15})		
 			end)
 	end
 
@@ -1604,20 +1602,20 @@ function RayfieldLibrary:CreateWindow(Settings)
 	local Passthrough = false
 	Topbar.Title.Text = Settings.Name
 
-	Main.Size = UDim2.new(0, 420, 0, 100)
+	Main.Size = useMobileSizing and UDim2.new(0, 500, 0, 275) or UDim2.new(0, 500, 0, 475)
 	Main.Visible = true
-	Main.BackgroundTransparency = 1
+	Main.BackgroundTransparency = 0
 	if Main:FindFirstChild('Notice') then Main.Notice.Visible = false end
-	Main.Shadow.Image.ImageTransparency = 1
+	Main.Shadow.Image.ImageTransparency = 0.6
 
-	LoadingFrame.Title.TextTransparency = 1
-	LoadingFrame.Subtitle.TextTransparency = 1
+	LoadingFrame.Title.TextTransparency = 0
+	LoadingFrame.Subtitle.TextTransparency = 0
 
 	if Settings.ShowText then
 		MPrompt.Title.Text = 'Show '..Settings.ShowText
 	end
 
-	LoadingFrame.Version.TextTransparency = 1
+	LoadingFrame.Version.TextTransparency = 0
 	LoadingFrame.Title.Text = Settings.LoadingTitle or "Rayfield"
 	LoadingFrame.Subtitle.Text = Settings.LoadingSubtitle or "Interface Suite"
 
@@ -1663,11 +1661,11 @@ function RayfieldLibrary:CreateWindow(Settings)
 		end
 	end
 
-	Topbar.Visible = false
-	Elements.Visible = false
-	LoadingFrame.Visible = true
+	Topbar.Visible = true
+	Elements.Visible = true
+	LoadingFrame.Visible = false
 
-	if not Settings.DisableRayfieldPrompts then
+	if not Settings.DisableRayfieldPrompls then
 		task.spawn(function()
 			while true do
 				task.wait(math.random(180, 600))
@@ -3500,8 +3498,8 @@ function RayfieldLibrary:CreateWindow(Settings)
 	TweenService:Create(Main, TweenInfo.new(0.6, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Size = useMobileSizing and UDim2.new(0, 500, 0, 275) or UDim2.new(0, 500, 0, 475)}):Play()
 	TweenService:Create(Main.Shadow.Image, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {ImageTransparency = 0.6}):Play()
 
-	Topbar.BackgroundTransparency = 1
-	Topbar.Divider.Size = UDim2.new(0, 0, 0, 1)
+	Topbar.BackgroundTransparency = 0
+	Topbar.Divider.Size = UDim2.new(0, 1, 0, 1)
 	Topbar.Divider.BackgroundColor3 = SelectedTheme.ElementStroke
 	Topbar.CornerRepair.BackgroundTransparency = 1
 	Topbar.Title.TextTransparency = 1
@@ -3958,7 +3956,7 @@ if useStudio then
 
 	--local Label2 = Tab:CreateLabel("Warning", 4483362458, Color3.fromRGB(255, 159, 49),  true)
 
-	--local Paragraph = Tab:CreateParagraph({Title = "Paragraph Example", Content = "Paragraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph Example"})
+	--local Paragraph = Tab:CreateParagraph({Title = "Paragraph Example", Content = "Paragraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph Example"})
 end
 
 if CEnabled and Main:FindFirstChild('Notice') then
@@ -3980,10 +3978,6 @@ end
 task.delay(4, function()
 	RayfieldLibrary.LoadConfiguration()
 	if Main:FindFirstChild('Notice') and Main.Notice.Visible then
-		TweenService:Create(Main.Notice, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.InOut), {Size = UDim2.new(0, 100, 0, 25), Position = UDim2.new(0.5, 0, 0, -100), BackgroundTransparency = 1}):Play()
-		TweenService:Create(Main.Notice.Title, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 1}):Play()
-
-		task.wait(0.5)
 		Main.Notice.Visible = false
 	end
 end)
