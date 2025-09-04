@@ -212,11 +212,99 @@ function UILibrary.createColorPicker(parent: Instance, text: string): Component
     return colorPicker
 end
 
+-- Создание системы уведомлений
+function UILibrary.createNotificationSystem(parent: Instance): Component
+    local notificationSystem = UILibrary.new(parent)
+    notificationSystem.frame.Size = UDim2.new(1, 0, 1, 0)
+    notificationSystem.frame.BackgroundTransparency = 1
+    notificationSystem.frame.ZIndex = 100  -- Высокий приоритет отображения
+    
+    -- Контейнер для уведомлений
+    local notificationsContainer = Instance.new("Frame", notificationSystem.frame)
+    notificationsContainer.Size = UDim2.new(1, 0, 1, 0)
+    notificationsContainer.BackgroundTransparency = 1
+    notificationsContainer.Name = "NotificationsContainer"
+    
+    -- Функция создания уведомления
+    function notificationSystem:Notify(params)
+        local title = params.Title or "Уведомление"
+        local content = params.Content or ""
+        local duration = params.Duration or 3
+        local image = params.Image or 4483345998  -- Дефолтная иконка
+        
+        -- Создаем фрейм уведомления
+        local notification = Instance.new("Frame", notificationsContainer)
+        notification.Size = UDim2.new(0, 300, 0, 80)
+        notification.Position = UDim2.new(1, 10, 1, -100)  -- Начальная позиция за пределами экрана
+        notification.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        notification.BorderSizePixel = 0
+        
+        -- Иконка уведомления
+        local icon = Instance.new("ImageButton", notification)
+        icon.Size = UDim2.new(0, 60, 0, 60)
+        icon.Position = UDim2.new(0, 10, 0, 10)
+        icon.Image = "rbxassetid://" .. tostring(image)
+        icon.BackgroundTransparency = 1
+        
+        -- Текст уведомления
+        local titleText = Instance.new("TextButton", notification)
+        titleText.Size = UDim2.new(0.7, -70, 0, 30)
+        titleText.Position = UDim2.new(0, 80, 0, 10)
+        titleText.Text = title
+        titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+        titleText.BackgroundTransparency = 1
+        titleText.TextXAlignment = Enum.TextXAlignment.Left
+        titleText.TextSize = 16
+        
+        local contentText = Instance.new("TextButton", notification)
+        contentText.Size = UDim2.new(0.7, -70, 0, 30)
+        contentText.Position = UDim2.new(0, 80, 0, 40)
+        contentText.Text = content
+        contentText.TextColor3 = Color3.fromRGB(200, 200, 200)
+        contentText.BackgroundTransparency = 1
+        contentText.TextXAlignment = Enum.TextXAlignment.Left
+        contentText.TextSize = 14
+        
+        -- Анимация появления
+        local function animateNotification()
+            local tweenInfo = TweenInfo.new(
+                0.5,  -- Время анимации
+                Enum.EasingStyle.Quad,  -- Стиль анимации
+                Enum.EasingDirection.Out
+            )
+            
+            local tween = game:GetService("TweenService"):Create(notification, tweenInfo, {
+                Position = UDim2.new(1, -310, 1, -100)
+            })
+            tween:Play()
+            
+            -- Автоматическое закрытие
+            task.delay(duration, function()
+                local hideTween = game:GetService("TweenService"):Create(notification, tweenInfo, {
+                    Position = UDim2.new(1, 10, 1, -100)
+                })
+                hideTween:Play()
+                
+                -- Удаление после анимации
+                hideTween.Completed:Connect(function()
+                    notification:Destroy()
+                end)
+            end)
+        end
+        
+        animateNotification()
+        
+        return notification
+    end
+    
+    return notificationSystem
+end
+
 -- Создание главного окна с глобальным управлением
 function UILibrary.createMainWindow(parent: Instance, title: string): Component
     local window = UILibrary.new(parent)
-    window.frame.Size = UDim2.new(0, 300, 0, 500)
-    window.frame.Position = UDim2.new(0.5, -150, 0.5, -250)
+    window.frame.Size = UDim2.new(0, 430, 0, 500)
+    window.frame.Position = UDim2.new(0.5, -215, 0.5, -250)
     window.frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     window.frame.Visible = true  -- Изначально открыто
     
@@ -236,6 +324,10 @@ function UILibrary.createMainWindow(parent: Instance, title: string): Component
     contentFrame.Size = UDim2.new(1, 0, 1, -40)
     contentFrame.Position = UDim2.new(0, 0, 0, 40)
     contentFrame.BackgroundTransparency = 1
+    
+    -- Создаем систему уведомлений
+    local notificationSystem = UILibrary.createNotificationSystem(window.frame)
+    notificationSystem.frame.Position = UDim2.new(0, 0, 0, 0)
     
     -- Добавляем возможность перетаскивания
     local isDragging = false
@@ -279,6 +371,11 @@ function UILibrary.createMainWindow(parent: Instance, title: string): Component
     function window:AddComponent(component)
         component.frame.Parent = contentFrame
         return component
+    end
+    
+    -- Добавляем метов уведомлений
+    function window:Notify(params)
+        return notificationSystem:Notify(params)
     end
     
     return window
