@@ -19,6 +19,36 @@ function UILibrary.new(parent: Instance): Component
     return self
 end
 
+-- Создание глобального обработчика клавиш
+function UILibrary.createGlobalKeybinds(keybinds)
+    local UserInputService = game:GetService("UserInputService")
+    
+    local function SafeExecute(action)
+        local success, result = pcall(action)
+        if not success then
+            warn("❌ Ошибка при выполнении действия: " .. tostring(result))
+        end
+    end
+    
+    local connection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if not gameProcessed then
+            local bindAction = keybinds[input.KeyCode]
+            if bindAction then
+                SafeExecute(bindAction)
+            end
+        end
+    end)
+    
+    return {
+        connection = connection,
+        disconnect = function()
+            if connection.Connected then
+                connection:Disconnect()
+            end
+        end
+    }
+end
+
 -- Создание Toggle компонента
 function UILibrary.createToggle(parent: Instance, text: string): Component
     local toggle = UILibrary.new(parent)
