@@ -430,8 +430,8 @@ function UILibrary.createMainWindow(parent: Instance, title: string): Component
     screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
     
     window.frame.Parent = screenGui
-    window.frame.Size = UDim2.new(0, 400, 0, 500)  -- Фиксированный размер
-    window.frame.Position = UDim2.new(0.5, -200, 0.5, -250)  -- Центрирование
+    window.frame.Size = UDim2.new(0, 680, 0, 400)  -- Обновленный размер
+    window.frame.Position = UDim2.new(0.5, -340, 0.5, -200)  -- Обновленная позиция
     window.frame.BackgroundColor3 = COLORS.BACKGROUND
     window.frame.BorderSizePixel = 0
     window.frame.Visible = true
