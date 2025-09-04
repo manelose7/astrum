@@ -78,7 +78,7 @@ local ConfigurationExtension = ".rfld"
 local settingsTable = {
 	General = {
 		-- if needs be in order just make getSetting(name)
-		rayfieldOpen = {Type = 'bind', Value = 'K', Name = 'Rayfield Keybind'},
+		rayfieldOpen = {Type = 'bind', Value = 'Delete', Name = 'Rayfield Keybind'},
 		-- buildwarnings
 		-- rayfieldprompts
 
@@ -1561,8 +1561,6 @@ function RayfieldLibrary:CreateWindow(Settings)
 	if Rayfield:FindFirstChild('Loading') then
 		if getgenv and not getgenv().rayfieldCached then
 			Rayfield.Enabled = true
-			Rayfield.Loading.Visible = true
-			Rayfield.Loading.Visible = false
 		end
 	end
 
@@ -1608,38 +1606,8 @@ function RayfieldLibrary:CreateWindow(Settings)
 	if Main:FindFirstChild('Notice') then Main.Notice.Visible = false end
 	Main.Shadow.Image.ImageTransparency = 0.6
 
-	LoadingFrame.Title.TextTransparency = 0
-	LoadingFrame.Subtitle.TextTransparency = 0
-
 	if Settings.ShowText then
 		MPrompt.Title.Text = 'Show '..Settings.ShowText
-	end
-
-	LoadingFrame.Version.TextTransparency = 0
-	LoadingFrame.Title.Text = Settings.LoadingTitle or "Rayfield"
-	LoadingFrame.Subtitle.Text = Settings.LoadingSubtitle or "Interface Suite"
-
-	if Settings.LoadingTitle ~= "Rayfield Interface Suite" then
-		LoadingFrame.Version.Text = "Rayfield UI"
-	end
-
-	if Settings.Icon and Settings.Icon ~= 0 and Topbar:FindFirstChild('Icon') then
-		Topbar.Icon.Visible = true
-		Topbar.Title.Position = UDim2.new(0, 47, 0.5, 0)
-
-		if Settings.Icon then
-			if typeof(Settings.Icon) == 'string' and Icons then
-				local asset = getIcon(Settings.Icon)
-
-				Topbar.Icon.Image = 'rbxassetid://'..asset.id
-				Topbar.Icon.ImageRectOffset = asset.imageRectOffset
-				Topbar.Icon.ImageRectSize = asset.imageRectSize
-			else
-				Topbar.Icon.Image = getAssetUri(Settings.Icon)
-			end
-		else
-			Topbar.Icon.Image = "rbxassetid://" .. 0
-		end
 	end
 
 	if dragBar then
@@ -1663,7 +1631,6 @@ function RayfieldLibrary:CreateWindow(Settings)
 
 	Topbar.Visible = true
 	Elements.Visible = true
-	LoadingFrame.Visible = false
 
 	if not Settings.DisableRayfieldPrompls then
 		task.spawn(function()
@@ -3956,7 +3923,7 @@ if useStudio then
 
 	--local Label2 = Tab:CreateLabel("Warning", 4483362458, Color3.fromRGB(255, 159, 49),  true)
 
-	--local Paragraph = Tab:CreateParagraph({Title = "Paragraph Example", Content = "Paragraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph Example"})
+	--local Paragraph = Tab:CreateParagraph({Title = "Paragraph Example", Content = "Paragraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph Example"})
 end
 
 if CEnabled and Main:FindFirstChild('Notice') then
