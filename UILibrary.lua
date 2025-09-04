@@ -413,15 +413,12 @@ end
 function UILibrary.createMainWindow(parent: Instance, title: string): Component
     local window = UILibrary.new(parent)
     
-    -- Создаем ScreenGui, если его нет
-    local screenGui = parent:FindFirstChildOfClass("ScreenGui")
-    if not screenGui then
-        screenGui = Instance.new("ScreenGui", parent)
-        screenGui.Name = "UILibraryMainGui"
-        screenGui.ResetOnSpawn = false
-        screenGui.Enabled = true
-        screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
-    end
+    -- Создаем ScreenGui
+    local screenGui = Instance.new("ScreenGui", parent)
+    screenGui.Name = "UILibraryMainGui"
+    screenGui.ResetOnSpawn = false
+    screenGui.Enabled = true
+    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
     
     window.frame.Parent = screenGui
     window.frame.Size = UDim2.new(0, 400, 0, 500)  -- Фиксированный размер
